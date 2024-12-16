@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>慈善基金会收支分析</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      #chart {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+  </head>
+  <body>
+    <div id="chart"></div>
+    <script>
+      // 等待文档加载完成
+      document.addEventListener('DOMContentLoaded', function() {
+        const chart = echarts.init(document.getElementById("chart"), null, {
+          renderer: 'canvas',
+          useDirtyRect: false
+        });
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', function() {
+          chart.resize();
+        });
+
+        const option = {
+          tooltip: {
+            trigger: "item",
+            formatter: function (params) {
+              // 定义每个类别的描述信息
+              const descriptions = {
+                个人捐赠: "普通公众捐赠，可通过线上平台或线下活动如慈善义卖、义演等进行。",
+                企业捐赠: "企业向公益基金会捐赠资金、物资或提供服务支持，可能是一次性大额捐赠，也可能是长期合作捐赠。",
+                其他组织捐赠: "包括其他公益组织、基金会、社会团体等，基于共同的公益目标或合作项目进行资金或物资捐赠。",
+                遗产捐赠: "个人在遗嘱中指定将部分或全部遗产捐赠给公益基金会。",
+                财政拨款: "政府为推动特定公益领域发展或支持公益项目实施，向公益基金会拨付专项资金。",
+                政府购买服务: "政府通过购买公益基金会提供的专业服务来实现公共服务目标，基金会按合同要求完成服务后获得相应资金。",
+                投资收益: "将部分闲置资金进行投资，如银行定期存款、购买国债、股票等，以实现资金的保值增值，获取投资收益。",
+                项目合作收费: "与企业、政府或其他组织合作开展公益项目时，根据项目成本和服务内容收取一定费用。",
+                专业服务收费: "凭借自身专业优势，为其他组织或个人提供咨询、培训、评估等专业服务并收取费用。",
+                国际资助: "与国际组织、外国政府或国际基金会建立合作关系，获得资金、物资或技术支持。",
+                社会活动筹款: "通过举办慈善晚宴、义卖义演、公益马拉松等活动筹集资金。",
+                发行公益彩票: "在符合法律法规和政策的前提下，经批准发行公益彩票筹集资金。",
+                物资援助费用: "直接为受助人提供物资，如食品、衣物、书籍、救灾物资等的采购及运输成本。",
+                服务提供费用: "开展慈善服务所需的费用，如医疗救助项目中的诊疗费、手术费、康复治疗费。",
+                项目建设费用: "涉及慈善项目的基础设施建设成本，如修建希望小学、养老院、社区服务中心等的建设费用、设备购置费用等。",
+                员工薪酬福利: "支付给基金会管理人员、项目工作人员等的工资、奖金、津贴、社会保险及住房公积金等。",
+                办公运营成本: "办公场地租赁、水电费、办公设备购置及维护、办公用品采购、通讯费等日常办公费用。",
+                专业服务费用: "聘请律师、会计师、审计师等专业人员提供法律咨询、财务审计、税务筹划等服务的费用。",
+                捐赠劝募费用: "为吸引捐赠而开展的活动费用，如举办慈善晚会活动的场地租赁、活动策划与执行、宣传推广等费用。",
+                宣传推广费用: "通过各种媒体渠道进行宣传的费用，包括制作宣传册、海报等宣传资料的费用，在媒体上投放广告的费用。",
+                应急救援支出: "在面对自然灾害、公共卫生事件等紧急情况时，用于应急救援的物资采购、运输、人员派遣等费用。",
+                对外交流合作费用: "参与国际国内慈善交流活动、与其他慈善组织合作项目等产生的差旅费、会议费、合作项目执行费用等。",
+                资产折旧与损耗: "基金会的固定资产在使用过程中产生的折旧费用，以及资产因正常使用或损耗而发生的减值损失。"
+              };
+
+              // 格式化文本
+              function formatText(text, maxLength) {
+                const lines = text.match(new RegExp(`.{1,${maxLength}}`, "g")) || [];
+                return lines.join("<br/>");
+              }
+
+              return `<b>${params.name}</b><br/><br/>${formatText(descriptions[params.name] || "", 15)}`;
+            }
+          },
+          color: ["#F28D35", "#F44336", "#FF9800", "#FFEB3B", "#FF5722", "#FFC107", "#E91E63", "#FF4081", "#9C27B0"],
+          series: [
+            {
+              type: "sunburst",
+              radius: ["10%", "75%"],
+              data: [
+                {
+                  name: "收入",
+                  value: 1000,
+                  label: { fontSize: 18 },
+                  children: [
+                    {
+                      name: "捐赠收入",
+                      value: 400,
+                      label: { fontSize: 14 },
+                      children: [
+                        { name: "个人捐赠", value: 150, label: { fontSize: 10 } },
+                        { name: "企业捐赠", value: 120, label: { fontSize: 10 } },
+                        { name: "其他组织捐赠", value: 80, label: { fontSize: 10 } },
+                        { name: "遗产捐赠", value: 50, label: { fontSize: 10 } }
+                      ]
+                    },
+                    {
+                      name: "政府支持",
+                      value: 200,
+                      label: { fontSize: 14 },
+                      children: [
+                        { name: "财政拨款", value: 120, label: { fontSize: 10 } },
+                        { name: "政府购买服务", value: 80, label: { fontSize: 10 } }
+                      ]
+                    },
+                    {
+                      name: "投资收益",
+                      value: 150,
+                      label: { fontSize: 14 }
+                    },
+                    {
+                      name: "收费服务",
+                      value: 180,
+                      label: { fontSize: 14 },
+                      children: [
+                        { name: "项目合作收费", value: 100, label: { fontSize: 10 } },
+                        { name: "专业服务收费", value: 80, label: { fontSize: 10 } }
+                      ]
+                    },
+                    {
+                      name: "其他渠道",
+                      value: 70,
+                      label: { fontSize: 14 },
+                      children: [
+                        { name: "国际资助", value: 30, label: { fontSize: 10 } },
+                        { name: "社会活动筹款", value: 20, label: { fontSize: 10 } },
+                        { name: "发行公益彩票", value: 20, label: { fontSize: 10 } }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  name: "支出",
+                  value: 1000,
+                  label: { fontSize: 18 },
+                  children: [
+                    {
+                      name: "慈善项目实施支出",
+                      value: 400,
+                      label: { fontSize: 14, rotate: "tangential" },
+                      children: [
+                        { name: "物资援助费用", value: 150, label: { fontSize: 10 } },
+                        { name: "服务提供费用", value: 120, label: { fontSize: 10 } },
+                        { name: "项目建设费用", value: 130, label: { fontSize: 10 } }
+                      ]
+                    },
+                    {
+                      name: "运营管理支出",
+                      value: 300,
+                      label: { fontSize: 14, rotate: "tangential" },
+                      children: [
+                        { name: "员工薪酬福利", value: 150, label: { fontSize: 10 } },
+                        { name: "办公运营成本", value: 100, label: { fontSize: 10 } },
+                        { name: "专业服务费用", value: 50, label: { fontSize: 10 } }
+                      ]
+                    },
+                    {
+                      name: "筹资宣传支出",
+                      value: 200,
+                      label: { fontSize: 14, rotate: "tangential" },
+                      children: [
+                        { name: "捐赠劝募费用", value: 120, label: { fontSize: 10 } },
+                        { name: "宣传推广费用", value: 80, label: { fontSize: 10 } }
+                      ]
+                    },
+                    {
+                      name: "其他支出",
+                      value: 100,
+                      label: { fontSize: 14 },
+                      children: [
+                        { name: "应急救援支出", value: 40, label: { fontSize: 10 } },
+                        { name: "对外交流合作费用", value: 30, label: { fontSize: 10 } },
+                        { name: "资产折旧与损耗", value: 30, label: { fontSize: 10 } }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              emphasis: {
+                focus: "ancestor"
+              }
+            }
+          ]
+        };
+
+        chart.setOption(option);
+      });
+    </script>
+  </body>
+</html>
